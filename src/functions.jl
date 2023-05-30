@@ -82,6 +82,60 @@ function fibonacci_sequence(sequence_length_array::Array{Int} = [3], array_numbe
     return result
 end
 
-export random_pair, fibonacci_sequence
+# Fibonacci sequence struct with a, b being sequence numbers and k is index of a
+mutable struct Fib
+    a
+    b
+    k
+end
+
+global fib = Fib(1,1,1)
+
+"""
+get_next_fib_seq(length::Int64, type::String)
+Generate array of next consequtive Fibonacci numbers.
+# Arguments
+- `length::Int64`: array length. Default value is [3].
+- `type::String`: set "even", "odd" or "all". Default value is "all".
+```julia-repl
+julia> get_next_fib_seq()
+3-element Vector{Any}:
+ 13
+ 21
+ 34
+
+julia> get_next_fib_seq(4,"even")
+4-element Vector{Any}:
+   55
+  144
+  377
+  987
+
+```
+"""
+function get_next_fib_seq(length::Int64 = 3, type::String = "all")
+    if type!="all"&&type!="even"&&type!="odd"
+        throw(ArgumentError("Type argument must be one of the {'all', 'even', 'odd'}."))
+    end
+    out = []
+    i = 1
+    while i <= length
+        if (type == "even" && iseven(fib.k))||(type == "odd" && isodd(fib.k))||type == "all"
+            push!(out, fib.a)
+            i += 1
+        end
+        if fib.a + fib.b < 0 
+            fib.a = BigInt(fib.a)
+            fib.b = BigInt(fib.b)
+        end
+        a_old = fib.a
+        fib.a = fib.b
+        fib.b = a_old + fib.a
+        fib.k += 1
+    end
+    return out
+end
+
+export random_pair, fibonacci_sequence, get_next_fib_seq
 
 # fib(n::Integer) = n ≤ 2 ? one(n) : fib(n-1) + fib(n-2)
