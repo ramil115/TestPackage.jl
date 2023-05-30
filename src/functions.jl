@@ -18,7 +18,7 @@ end
     fibonacci_sequence(sequence_length_array::Array{Int}, number_of_cycles::Integer, get_even::Bool)
 Generate arrays of consequtive Fibonacci numbers.
 # Arguments
-- `sequence_length_array::Array{Int}`: array of desired sequence lengths. Default value is 3.
+- `sequence_length_array::Array{Int}`: array of desired sequence lengths. Default value is [3].
 - `array_number::Integer`: total number of output sequences. Default value is 5.
 - `get_even::Bool`: set True if even members of Fibonacci series needed. Default value is False.
 ```julia-repl
