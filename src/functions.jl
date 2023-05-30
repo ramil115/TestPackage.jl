@@ -46,13 +46,14 @@ julia> fibonacci_sequence([2,3], 4)
 ```
 """
 function fibonacci_sequence(sequence_length_array::Array{Int} = [3], array_number::Integer = 5, get_even::Bool= false)
-    a, b = BigInt(1), BigInt(1)
+    a, b = 1, 1
     k = 1
     m = 1
     result = []
+    flag  = true
     while m <= array_number
         for sequence_length in sequence_length_array
-            sequence = Array{BigInt}(undef, 0)
+            sequence = []
             j = 1
             while j <= sequence_length
                 if !get_even || (get_even && iseven(k))
@@ -61,7 +62,13 @@ function fibonacci_sequence(sequence_length_array::Array{Int} = [3], array_numbe
                 end
                 a_old = a
                 a = b
-                b = a_old + a
+                if a_old + a < 0 && flag
+                    b = BigInt(a_old) + BigInt(a)
+                    flag = false
+                else
+                    b = a_old + a
+                end
+
                 k += 1
             end
             # println(sequence)
