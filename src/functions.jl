@@ -89,7 +89,7 @@ mutable struct Fib
     k
 end
 
-global fib = Fib(1,1,1)
+fib = Fib(1,1,1)
 
 """
 get_next_fib_seq(length::Int64, type::String)
@@ -136,6 +136,22 @@ function get_next_fib_seq(length::Int64 = 3, type::String = "all")
     return out
 end
 
-export random_pair, fibonacci_sequence, get_next_fib_seq
+function subsequence_from_sequence(sequence::AbstractVector, subsequence_method::String = "all")
+    if subsequence_method!="all"&&subsequence_method!="even"&&subsequence_method!="odd"
+        throw(ArgumentError("Type argument must be one of the {'all', 'even', 'odd'}."))
+    end
+    if subsequence_method == "all"
+        return sequence
+    elseif subsequence_method == "even"
+        return sequence[2:2:end]
+    elseif subsequence_method == "odd"
+        return sequence[1:2:end]
+    end
+end
+
+
+
+
+export random_pair, fibonacci_sequence, get_next_fib_seq, subsequence_from_sequence
 
 # fib(n::Integer) = n ≤ 2 ? one(n) : fib(n-1) + fib(n-2)
