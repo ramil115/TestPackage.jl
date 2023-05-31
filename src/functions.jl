@@ -92,11 +92,11 @@ end
 fib = Fib(1,1,1)
 
 """
-get_next_fib_seq(length::Int64, type::String)
+get_next_fib_seq(length::Int64, subsequence_type::String)
 Generate array of next consequtive Fibonacci numbers.
 # Arguments
 - `length::Int64`: array length. Default value is [3].
-- `type::String`: set "even", "odd" or "all". Default value is "all".
+- `subsequence_type::String`: set "even", "odd" or "all". Default value is "all".
 ```julia-repl
 julia> get_next_fib_seq()
 3-element Vector{Any}:
@@ -113,40 +113,37 @@ julia> get_next_fib_seq(4,"even")
 
 ```
 """
-function get_next_fib_seq(length::Int64 = 3, type::String = "all")
-    if type!="all"&&type!="even"&&type!="odd"
+function get_next_fib_seq(length::Int64 = 3, subsequence_type::String = "all")
+    if subsequence_type!="all"&&subsequence_type!="even"&&subsequence_type!="odd"
         throw(ArgumentError("Type argument must be one of the {'all', 'even', 'odd'}."))
     end
-    out = []
-    i = 1
-    while i <= length
-        if (type == "even" && iseven(fib.k))||(type == "odd" && isodd(fib.k))||type == "all"
+    if subsequence_type == "all"
+        out = []
+        i = 1
+        while i <= length
             push!(out, fib.a)
             i += 1
+            if fib.a + fib.b < 0 
+                fib.a = BigInt(fib.a)
+                fib.b = BigInt(fib.b)
+            end
+            a_old = fib.a
+            fib.a = fib.b
+            fib.b = a_old + fib.a
+            fib.k += 1
         end
-        if fib.a + fib.b < 0 
-            fib.a = BigInt(fib.a)
-            fib.b = BigInt(fib.b)
+        return out
+    else
+        if (iseven(fib.k)&&subsequence_type=="even")||(isodd(fib.k)&&subsequence_type=="odd")
+            subsequence_from_sequence(get_next_fib_seq(2*length), 1,2)
+        else
+            subsequence_from_sequence(get_next_fib_seq(2*length+1), 2,2)
         end
-        a_old = fib.a
-        fib.a = fib.b
-        fib.b = a_old + fib.a
-        fib.k += 1
     end
-    return out
 end
 
-function subsequence_from_sequence(sequence::AbstractVector, subsequence_method::String = "all")
-    if subsequence_method!="all"&&subsequence_method!="even"&&subsequence_method!="odd"
-        throw(ArgumentError("Type argument must be one of the {'all', 'even', 'odd'}."))
-    end
-    if subsequence_method == "all"
-        return sequence
-    elseif subsequence_method == "even"
-        return sequence[2:2:end]
-    elseif subsequence_method == "odd"
-        return sequence[1:2:end]
-    end
+function subsequence_from_sequence(sequence::AbstractVector, start_index::Int64 = 1, step::Int64 = 1)
+    return sequence[start_index:step:end]
 end
 
 
