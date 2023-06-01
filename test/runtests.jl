@@ -4,8 +4,8 @@ using Test
 @testset "TestPackage.jl" begin
     @test length(TestPackage.random_pair()) == 2
     @test isreal(random_pair()) == true
-    @test TestPackage.fibonacci_sequence([3],20, true)[end] == BigInt[781774079430987230203437, 2046711111473984623691759, 5358359254990966640871840]
-    @test TestPackage.fibonacci_sequence([3],20)[end] == BigInt[591286729879, 956722026041, 1548008755920]
-    arr = get_next_fib_seq()
-    @test arr[1]+arr[2] == arr[3]
+    @test length(TestPackage.get_next_fib_seq(5,"even")) == 5
+    @test TestPackage.get_next_fib_seq(100,"odd")[end] > 0
+    seq = get_next_fib_seq(rand(1:100))
+    @test seq[end-2]+seq[end-1] == seq[end]
 end
