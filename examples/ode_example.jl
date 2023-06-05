@@ -116,18 +116,23 @@ using ModelingToolkit, OrdinaryDiffEq, Plots
 using ModelingToolkitStandardLibrary.Electrical
 using ModelingToolkitStandardLibrary.Blocks: Constant
 using ModelingToolkitStandardLibrary.Blocks: RealInput
+using ModelingToolkitStandardLibrary.Blocks: Sine
 
 
 
-@component function My_Resistor(; name)
+@component function My_Resistor(; name, R_min = 0.75)
     @named oneport = OnePort()
     @unpack v, i = oneport
     @named R = RealInput()
+
+    sts = @variables begin
+        R_actual(t) = R_min
+    end
     eqs = [
-        v ~ i * R.u
+        R_actual ~ ifelse(R.u < R_min, R_min, R.u)
+        v ~ i * R_actual
     ]
-    extend(ODESystem(eqs, t, [], []; name = name, systems = [R]), oneport)
-    # extend(ODESystem(eqs, t, [], []; name = name, systems = [V]), oneport)
+    extend(ODESystem(eqs, t, sts, []; name = name, systems = [R]), oneport)
 end
 
 R = 1.0
@@ -140,19 +145,20 @@ V = 1.0
 @named constant = Constant(k = V)
 @named ground = Ground()
 @named constant2 = Constant(k = R)
+@named input_ref = Sine(; frequency = 1, offset = 1, amplitude = 0.5)
 
 rc_eqs = [connect(constant.output, source.V)
           connect(source.p, resistor.p)
           connect(resistor.n, capacitor.p)
           connect(capacitor.n, source.n, ground.g)
-          connect(constant2.output, resistor.R)]
+          connect(input_ref.output, resistor.R)]
 
 @named rc_model = ODESystem(rc_eqs, t,
-                            systems = [resistor, capacitor, constant, source, ground, constant2])
+                            systems = [resistor, capacitor, constant, source, ground, input_ref])
 sys = structural_simplify(rc_model)
-prob = ODAEProblem(sys, Pair[], (0, 10.0))
+prob = ODAEProblem(sys, Pair[], (0, 1.0))
 sol = solve(prob, Tsit5())
-plot(sol, vars = [capacitor.v, resistor.i, resistor.R.u],
+plot(sol, vars = [capacitor.v, resistor.i, resistor.R_actual],
      title = "RC Circuit Demonstration",
      labels = ["Capacitor Voltage" "Resistor Current" "Resistor Resistance"])
 savefig("plot.png");
